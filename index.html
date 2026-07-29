@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Finder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>📚 Book Finder</h1>
+    <p>Search for any book using the Open Library API</p>
+  </header>
+
+  <!-- Search bar -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Try 'Harry Potter' or an author name...">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <!-- Simple filter for sorting results -->
+  <div class="filter-container">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect">
+      <option value="relevance">Relevance</option>
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+    </select>
+  </div>
+
+  <!-- Loading message, hidden by default -->
+  <p id="loadingMsg" class="hidden">Searching...</p>
+
+  <!-- Message for no results / errors -->
+  <p id="statusMsg" class="hidden"></p>
+
+  <!-- Results get inserted here by script.js -->
+  <div id="results" class="results-grid"></div>
+
+  <footer>
+    <p>Book data from <a href="https://openlibrary.org/developers/api" target="_blank">Open Library</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* Basic reset so things look consistent across browsers */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f5f3ef;
+  color: #2b2b2b;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+header p {
+  color: #666;
+}
+
+/* Search bar */
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+#searchInput {
+  padding: 10px 14px;
+  width: 320px;
+  max-width: 80vw;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#searchBtn {
+  padding: 10px 20px;
+  background-color: #3a5a40;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#searchBtn:hover {
+  background-color: #2f4a34;
+}
+
+/* Filter dropdown */
+.filter-container {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+#sortSelect {
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Status messages */
+.hidden {
+  display: none;
+}
+
+#loadingMsg,
+#statusMsg {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+/* Results grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.book-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background-color: #e0ddd6; /* shows while image loads or if missing */
+}
+
+.book-card h3 {
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+}
+
+.book-card p {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+footer a {
+  color: #3a5a40;
+}
