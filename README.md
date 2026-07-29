@@ -49,6 +49,11 @@ https://openlibrary.org/search.json?q=YOUR_SEARCH
 ```
 and gets back a list of matching books as JSON. The script then loops through the results and builds a little card for each one with the cover image, title, author, and year.
 
+## A couple things I fixed after getting feedback
+
+- **Rate limiting on searches** - originally you could mash the search button as fast as you wanted, which would spam Open Library with requests. Now there's a 1-second cooldown between searches so it can't be spammed.
+- **XSS fix** - I was originally building the result cards using `innerHTML` with the book title/author dropped straight into the string. That's a bad habit because if that text ever contained something like `<script>`, the browser would actually run it. Switched to building the cards with `createElement`/`textContent` instead, which just displays text as text no matter what's in it.
+
 ## Things I'd like to add later
 
 - A loading skeleton instead of just plain text while results load

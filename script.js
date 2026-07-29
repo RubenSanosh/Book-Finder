@@ -20,13 +20,42 @@ const statusMsg = document.getElementById("statusMsg");
 // without having to call the API again every time
 let currentBooks = [];
 
+// --- Rate limiting ---
+// Nothing stops someone from mashing the search button as fast as they
+// can, which would fire a ton of requests at Open Library in a few
+// seconds. That's not great - it wastes bandwidth and could get your
+// IP throttled by their API. To stop that, we track the last time a
+// search actually ran and just ignore clicks/enters that come in too
+// soon after it.
+const SEARCH_COOLDOWN_MS = 1000; // don't allow more than 1 search per second
+let lastSearchTime = 0;
+
+function canSearchNow() {
+  const now = Date.now();
+  if (now - lastSearchTime < SEARCH_COOLDOWN_MS) {
+    return false;
+  }
+  lastSearchTime = now;
+  return true;
+}
+
 // Run a search when the button is clicked
-searchBtn.addEventListener("click", searchBooks);
+searchBtn.addEventListener("click", () => {
+  if (canSearchNow()) {
+    searchBooks();
+  } else {
+    showStatus("Slow down a little! Wait a second before searching again.");
+  }
+});
 
 // Also let people just press Enter instead of clicking the button
 searchInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    searchBooks();
+    if (canSearchNow()) {
+      searchBooks();
+    } else {
+      showStatus("Slow down a little! Wait a second before searching again.");
+    }
   }
 });
 
@@ -117,12 +146,29 @@ function renderBooks(books) {
     const author = book.author_name ? book.author_name.join(", ") : "Unknown author";
     const year = book.first_publish_year || "Year unknown";
 
-    card.innerHTML = `
-      <img src="${coverUrl}" alt="${title} cover">
-      <h3>${title}</h3>
-      <p>${author}</p>
-      <p>${year}</p>
-    `;
+    // Building the card with createElement + textContent instead of
+    // innerHTML here. Book titles/authors come from Open Library, and
+    // even though it's unlikely, if any of that text ever contained
+    // something like "<script>", innerHTML would actually run it as
+    // real HTML. textContent just displays it as plain text no matter
+    // what's in it, so there's nothing to exploit.
+    const img = document.createElement("img");
+    img.src = coverUrl;
+    img.alt = `${title} cover`;
+
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = title;
+
+    const authorEl = document.createElement("p");
+    authorEl.textContent = author;
+
+    const yearEl = document.createElement("p");
+    yearEl.textContent = year;
+
+    card.appendChild(img);
+    card.appendChild(titleEl);
+    card.appendChild(authorEl);
+    card.appendChild(yearEl);
 
     resultsContainer.appendChild(card);
   });
