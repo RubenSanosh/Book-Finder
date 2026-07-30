@@ -15,10 +15,18 @@ const sortSelect = document.getElementById("sortSelect");
 const resultsContainer = document.getElementById("results");
 const loadingMsg = document.getElementById("loadingMsg");
 const statusMsg = document.getElementById("statusMsg");
+const ageGateModal = document.getElementById("ageGateModal");
+const ageYesBtn = document.getElementById("ageYesBtn");
+const ageNoBtn = document.getElementById("ageNoBtn");
+const adultFilterBtn = document.getElementById("adultFilterBtn");
+const categoryFilter = document.getElementById("categoryFilter");
 
 // This keeps the last set of results so we can re-sort them
 // without having to call the API again every time
 let currentBooks = [];
+
+// Which category filter is currently active: "all", "kids", "teen", or "adult"
+let currentCategory = "all";
 
 // --- Rate limiting ---
 // Nothing stops someone from mashing the search button as fast as they
@@ -61,9 +69,87 @@ searchInput.addEventListener("keydown", (event) => {
 
 // Re-sort and redraw results whenever the dropdown changes
 sortSelect.addEventListener("change", () => {
-  const sorted = sortBooks(currentBooks, sortSelect.value);
-  renderBooks(sorted);
+  applyFiltersAndRender();
 });
+
+// --- Age gate ---
+// This is a simple, self-reported check - it's not real age
+// verification (there's no way to actually verify that in a static
+// site with no backend). All it does is decide whether the "Adult"
+// filter button is clickable. Someone could just refresh and pick
+// "Yes" anyway, but that's fine here since there's no actual mature
+// content behind it - it's really just a UX pattern to practice.
+ageYesBtn.addEventListener("click", () => {
+  ageGateModal.classList.add("hidden");
+});
+
+ageNoBtn.addEventListener("click", () => {
+  ageGateModal.classList.add("hidden");
+  adultFilterBtn.disabled = true;
+  adultFilterBtn.title = "You said you're under 18, so this filter is turned off.";
+});
+
+// --- Category filter buttons ---
+categoryFilter.addEventListener("click", (event) => {
+  const clickedBtn = event.target.closest(".category-btn");
+  if (!clickedBtn || clickedBtn.disabled) {
+    return;
+  }
+
+  // Update which button looks "active"
+  document.querySelectorAll(".category-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  clickedBtn.classList.add("active");
+
+  currentCategory = clickedBtn.dataset.category;
+  applyFiltersAndRender();
+});
+
+// Works out whether a book counts as "kids", "teen", or "adult" based
+// on the subject tags Open Library gives us. Not every book has
+// subjects, so anything we can't confidently tag just falls into
+// "adult" as a general default.
+function categorizeBook(book) {
+  if (!book.subject || book.subject.length === 0) {
+    return "adult";
+  }
+
+  // Lowercase everything so "Juvenile Fiction" and "juvenile fiction"
+  // both match
+  const subjects = book.subject.map((s) => s.toLowerCase());
+
+  const isKids = subjects.some((s) =>
+    s.includes("juvenile") || s.includes("picture book") || s.includes("children")
+  );
+  if (isKids) return "kids";
+
+  const isTeen = subjects.some((s) => s.includes("young adult"));
+  if (isTeen) return "teen";
+
+  return "adult";
+}
+
+// Filters currentBooks down to the active category, then sorts and
+// renders whatever's left. This is the one function both the sort
+// dropdown and the category buttons call, so they always work
+// together instead of undoing each other.
+function applyFiltersAndRender() {
+  let filtered = currentBooks;
+
+  if (currentCategory !== "all") {
+    filtered = currentBooks.filter((book) => categorizeBook(book) === currentCategory);
+  }
+
+  const sorted = sortBooks(filtered, sortSelect.value);
+  renderBooks(sorted);
+
+  if (currentBooks.length > 0 && filtered.length === 0) {
+    showStatus("No books in this category for that search. Try a different filter.");
+  } else {
+    hideStatus();
+  }
+}
 
 async function searchBooks() {
   const query = searchInput.value.trim();
@@ -80,8 +166,10 @@ async function searchBooks() {
   loadingMsg.classList.remove("hidden");
 
   // Open Library's search endpoint. encodeURIComponent makes sure
-  // spaces and special characters in the search don't break the URL
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=24`;
+  // spaces and special characters in the search don't break the URL.
+  // We ask for the "subject" field specifically since that's what we
+  // use to sort books into Kids/Teen/Adult further down.
+  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&fields=title,author_name,first_publish_year,cover_i,subject&limit=24`;
 
   try {
     const response = await fetch(url);
@@ -103,9 +191,15 @@ async function searchBooks() {
 
     currentBooks = data.docs;
 
-    // Apply whatever sort option is currently selected
-    const sorted = sortBooks(currentBooks, sortSelect.value);
-    renderBooks(sorted);
+    // Reset back to "All" on a fresh search so results from the new
+    // search aren't hidden by a filter picked during the last search
+    currentCategory = "all";
+    document.querySelectorAll(".category-btn").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    document.querySelector('.category-btn[data-category="all"]').classList.add("active");
+
+    applyFiltersAndRender();
 
   } catch (error) {
     loadingMsg.classList.add("hidden");

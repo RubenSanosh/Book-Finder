@@ -8,9 +8,23 @@
 </head>
 <body>
 
+  <!-- Age gate: shows once when the page loads. This is just a UI
+       feature (self-reported, not real verification) that unlocks
+       the "Adult" category filter below. -->
+  <div id="ageGateModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>Quick check</h2>
+      <p>Are you 18 or older? This just unlocks the "Adult" filter option for search results. It's an honor-system check, not real ID verification.</p>
+      <div class="modal-buttons">
+        <button id="ageYesBtn">Yes, I'm 18+</button>
+        <button id="ageNoBtn">No / Skip</button>
+      </div>
+    </div>
+  </div>
+
   <header>
     <h1>📚 Book Finder</h1>
-    <p>Search for any book using the Open Library API - Ruben Sanosh</p>
+    <p>Search for any book using the Open Library API</p>
   </header>
 
   <!-- Search bar -->
@@ -27,6 +41,15 @@
       <option value="newest">Newest first</option>
       <option value="oldest">Oldest first</option>
     </select>
+  </div>
+
+  <!-- Category filter buttons. These sort results into Kids/Teen/Adult
+       based on the subject tags Open Library gives us for each book. -->
+  <div class="category-filter" id="categoryFilter">
+    <button class="category-btn active" data-category="all">All</button>
+    <button class="category-btn" data-category="kids">Kids</button>
+    <button class="category-btn" data-category="teen">Teen</button>
+    <button class="category-btn" data-category="adult" id="adultFilterBtn">Adult</button>
   </div>
 
   <!-- Loading message, hidden by default -->

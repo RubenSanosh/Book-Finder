@@ -6,6 +6,8 @@ A simple web app where you can search for any book and see the cover, author, an
 
 Type in a book title or author name, hit search, and it pulls real results from Open Library's database. You can also sort results by newest or oldest publish date using the dropdown.
 
+There's also a Kids / Teen / Adult filter. When the page loads, it asks if you're 18 or older - this is a simple self-reported check (not real ID verification, that's not really possible in a static site with no backend), and it just decides whether the "Adult" filter button is clickable. The actual categorization looks at the subject tags Open Library returns for each book (things like "Juvenile Fiction" or "Young Adult") and sorts results based on that.
+
 No backend, no database, no API key needed - it's just HTML, CSS, and JavaScript talking directly to a free public API.
 
 ## Why I built this
@@ -58,8 +60,8 @@ and gets back a list of matching books as JSON. The script then loops through th
 
 - A loading skeleton instead of just plain text while results load
 - Click on a book to see more details (description, other editions, etc.)
-- Filter by genre/subject, not just sort by year
 - Save favorite books to a list using localStorage
+- Better category detection - right now anything without clear subject tags just defaults to "Adult," which isn't perfect
 
 ## Project structure
 
